@@ -1,11 +1,10 @@
 package com.studysemina.snsapp.activity;
 
 import android.app.ProgressDialog;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -16,20 +15,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.studysemina.snsapp.R;
 import com.studysemina.snsapp.adapter.ChatAdapter;
+import com.studysemina.snsapp.model.ChatData;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -40,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     private FirebaseUser user;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference userColRef = db.collection("user");
+    private CollectionReference commentColRef = db.collection("comment");
 
     private View navheaderView;
     private String FirestoreNick;
@@ -49,10 +56,15 @@ public class MainActivity extends AppCompatActivity
     private TextView nav_tv_FirestoreNick;
     private TextView nav_tv_FirestoreEmail;
 
-    private RecyclerView recyclerView;
+    @BindView(R.id.Rv_Chat)
+    RecyclerView recyclerView;
     private ChatAdapter adapter;
+    ArrayList<ChatData> chatData;
 
     private ProgressDialog dialog;
+
+    @BindView(R.id.eT_Chat)
+    EditText eT_Chat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +75,18 @@ public class MainActivity extends AppCompatActivity
 
         setupUI();
 
-        dialog = new ProgressDialog(MainActivity.this);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.setMessage("등록중..");
-        dialog.setCancelable(false);
-
-
+//        commentColRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+//                for(DocumentChange dc : snapshots.getDocumentChanges()){
+//                    if(dc.getType() == DocumentChange.Type.ADDED) {
+////                        dc.getDocument().getData();
+//                    }
+//                }
+////                ChatAdapter adapter = new ChatAdapter(chatData);
+////                recyclerView.setAdapter(adapter);
+//            }
+//        });
     }
 
     private void setupUI() {
@@ -89,7 +107,8 @@ public class MainActivity extends AppCompatActivity
         nav_tv_FirestoreNick = (TextView) navheaderView.findViewById(R.id.nav_tv_FirestoreNick);
         nav_tv_FirestoreEmail = (TextView) navheaderView.findViewById(R.id.nav_tv_FirestoreEmail);
 
-
+        StaggeredGridLayoutManager mStaggeredGridManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(mStaggeredGridManager);
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -134,6 +153,45 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
     }
+
+    @OnClick(R.id.ChatSend_Button)
+    public void onChatSend_Button(View view) {
+        if (eT_Chat.getText().toString().length() == 0) {
+            return;
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("comment", eT_Chat.getText().toString());
+
+        if(FirestoreNick == null){
+            data.put("nickname", mAuth.getCurrentUser().getDisplayName());
+        }
+        else{
+            data.put("nickname", FirestoreNick);
+        }
+        data.put("userId", mAuth.getUid());
+        data.put("timestamp", new Date().getTime());
+
+        commentColRef
+                .add(data)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        eT_Chat.setText("");
+
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+
+                    }
+                });
+    }
+
+
 
 
 
