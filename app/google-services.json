@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "100150161297",
+    "firebase_url": "https://snsapp-77f7c.firebaseio.com",
+    "project_id": "snsapp-77f7c",
+    "storage_bucket": "snsapp-77f7c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100150161297:android:5797bb4c6c1d3c51",
+        "android_client_info": {
+          "package_name": "com.studysemina.snsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100150161297-r68q9hhv9ijtg0iroj49kubhgpq6v7p8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.studysemina.snsapp",
+            "certificate_hash": "e810179a45513fdeb8f99e24ce622ff51b89218a"
+          }
+        },
+        {
+          "client_id": "100150161297-021e31uda7ng7khk9b67gtkki8nfghl4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-SpStIq4Jehy89hOKDwZmWCx07CKn0Lc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100150161297-021e31uda7ng7khk9b67gtkki8nfghl4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
