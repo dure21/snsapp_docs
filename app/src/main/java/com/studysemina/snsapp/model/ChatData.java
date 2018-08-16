@@ -1,26 +1,59 @@
 package com.studysemina.snsapp.model;
 
+
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.sql.Date;
+
+@IgnoreExtraProperties
 public class ChatData {
 
-    private String nick;
+    private String userId;
+    private String nickname;
     private String comment;
-    private String date;
+    private long timestamp;
 
-    public ChatData(String nick, String comment, String date) {
-        this.nick = nick;
-        this.comment = comment;
-        this.date = date;
+    public ChatData() {
     }
 
-    public String getNick() {
-        return nick;
+
+
+    public ChatData(String userId, String nickname, String comment, long timestamp) {
+        this.userId = userId;
+        this.nickname = nickname;
+        this.comment = comment;
+        this.timestamp = timestamp;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getComment() {
         return comment;
     }
 
-    public String getDate() {
-        return date;
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

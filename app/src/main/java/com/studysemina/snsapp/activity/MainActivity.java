@@ -1,6 +1,7 @@
 package com.studysemina.snsapp.activity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -44,9 +47,11 @@ public class MainActivity extends AppCompatActivity
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference userColRef = db.collection("user");
-    private CollectionReference commentColRef = db.collection("comment");
+    private FirebaseFirestore db_FS = FirebaseFirestore.getInstance();
+    FirebaseDatabase db_RT = FirebaseDatabase.getInstance();
+    DatabaseReference commentColRef_RT = db_RT.getReference("comment");
+    private CollectionReference userColRef = db_FS.collection("user");
+    private CollectionReference commentColRef_RS = db_FS.collection("comment");
 
     private View navheaderView;
     private String FirestoreNick;
@@ -60,8 +65,6 @@ public class MainActivity extends AppCompatActivity
     RecyclerView recyclerView;
     private ChatAdapter adapter;
     ArrayList<ChatData> chatData;
-
-    private ProgressDialog dialog;
 
     @BindView(R.id.eT_Chat)
     EditText eT_Chat;
@@ -152,6 +155,8 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 });
+
+;
     }
 
     @OnClick(R.id.ChatSend_Button)
@@ -172,7 +177,10 @@ public class MainActivity extends AppCompatActivity
         data.put("userId", mAuth.getUid());
         data.put("timestamp", new Date().getTime());
 
-        commentColRef
+        // 기존db 쓰기
+        writeComment(mAuth.getUid(),mAuth.getCurrentUser().getDisplayName(),eT_Chat.getText().toString(),new Date().getTime());
+        // 베타db 쓰기
+        commentColRef_RS
                 .add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -189,6 +197,21 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 });
+
+    }
+
+    private void writeComment(String userId,String nickname,String comment,long timestamp) {
+        ChatData chatData = new ChatData(userId,nickname,comment,timestamp);
+
+        commentColRef_RT.push().setValue(chatData);
+
+    }
+
+
+    @OnClick(R.id.Calendar_Button)
+    public void Calendar_Button(View view) {
+        startActivity(new Intent(MainActivity.this, CalendarActivity.class));
+        finish();
     }
 
 
