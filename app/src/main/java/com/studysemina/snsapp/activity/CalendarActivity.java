@@ -67,7 +67,7 @@ public class CalendarActivity extends AppCompatActivity implements View.OnClickL
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH)+1,
                         calendar.get(Calendar.DATE));
-//                Toast.makeText(CalendarActivity.this,str,Toast.LENGTH_SHORT).show();
+                Toast.makeText(CalendarActivity.this,str,Toast.LENGTH_SHORT).show();
                 button.setEnabled(calendarView.getSelectedDates().size() > 1);
             }
         });
