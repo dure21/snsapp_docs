@@ -81,5 +81,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(milliseconds);
         return formatter.format(calendar.getTime());
+
     }
 }
