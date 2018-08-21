@@ -25,8 +25,6 @@ import butterknife.ButterKnife;
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     List<ChatData> mList;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference commentDelete;
 
     public ChatAdapter( List<ChatData> mList) {
         this.mList = mList;

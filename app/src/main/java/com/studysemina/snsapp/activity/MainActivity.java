@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity
                     mchatData.add(chatData);
                 }
                 adapter.notifyDataSetChanged();
+                recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount()-1);
             }
 
             @Override
