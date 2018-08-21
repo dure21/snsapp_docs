@@ -22,8 +22,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,6 +38,7 @@ import com.studysemina.snsapp.model.ChatData;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -64,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.Rv_Chat)
     RecyclerView recyclerView;
     private ChatAdapter adapter;
-    ArrayList<ChatData> chatData;
+    List<ChatData> mchatData;
 
     @BindView(R.id.eT_Chat)
     EditText eT_Chat;
@@ -86,8 +90,7 @@ public class MainActivity extends AppCompatActivity
 ////                        dc.getDocument().getData();
 //                    }
 //                }
-////                ChatAdapter adapter = new ChatAdapter(chatData);
-////                recyclerView.setAdapter(adapter);
+
 //            }
 //        });
     }
@@ -112,6 +115,10 @@ public class MainActivity extends AppCompatActivity
 
         StaggeredGridLayoutManager mStaggeredGridManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mStaggeredGridManager);
+
+        mchatData = new ArrayList<>();
+        final ChatAdapter adapter = new ChatAdapter(mchatData);
+        recyclerView.setAdapter(adapter);
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -156,7 +163,22 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-;
+        commentColRef_RT.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mchatData.clear();
+                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
+                    ChatData chatData = dataSnapshot1.getValue(ChatData.class);
+                    mchatData.add(chatData);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @OnClick(R.id.ChatSend_Button)

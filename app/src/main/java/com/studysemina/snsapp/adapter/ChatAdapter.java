@@ -1,5 +1,6 @@
 package com.studysemina.snsapp.adapter;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,20 +9,27 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.studysemina.snsapp.R;
 import com.studysemina.snsapp.model.ChatData;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
-    ArrayList<ChatData> mItems;
+    List<ChatData> mList;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference commentDelete;
 
-    public ChatAdapter( ArrayList<ChatData> item) {
-        mItems = item;
+    public ChatAdapter( List<ChatData> mList) {
+        this.mList = mList;
     }
 
     @NonNull
@@ -34,15 +42,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.item_chatNickTv.setText("");
-        holder.item_chatCommentTv.setText("");
-        holder.item_chatTimeTv.setText("");
+
+        final ChatData chatData = mList.get(position);
+
+        holder.item_chatNickTv.setText(chatData.getNickname());
+        holder.item_chatCommentTv.setText(chatData.getComment());
+        holder.item_chatTimeTv.setText(getDate(chatData.getTimestamp()));
         holder.item_chatImg.setImageResource(R.drawable.ic_wi_alien);
     }
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return mList.size();
+    }
+
+    public void add(List<ChatData> chatData) {
+        mList.addAll(chatData);
+    }
+    public void clear() {
+        mList.clear();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -56,5 +74,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             super(viewItem);
             ButterKnife.bind(this,viewItem);
         }
+    }
+
+    private String getDate (long milliseconds) {
+        SimpleDateFormat formatter = new SimpleDateFormat("hh-mm");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliseconds);
+        return formatter.format(calendar.getTime());
     }
 }
