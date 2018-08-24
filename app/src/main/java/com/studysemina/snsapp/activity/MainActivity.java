@@ -18,8 +18,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +34,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.studysemina.snsapp.R;
 import com.studysemina.snsapp.adapter.ChatAdapter;
 import com.studysemina.snsapp.model.ChatData;
@@ -55,7 +60,7 @@ public class MainActivity extends AppCompatActivity
     FirebaseDatabase db_RT = FirebaseDatabase.getInstance();
     DatabaseReference commentColRef_RT = db_RT.getReference("comment");
     private CollectionReference userColRef = db_FS.collection("user");
-    private CollectionReference commentColRef_RS = db_FS.collection("comment");
+    private CollectionReference commentColRef_FS = db_FS.collection("comment");
 
     private View navheaderView;
     private String FirestoreNick;
@@ -139,24 +144,54 @@ public class MainActivity extends AppCompatActivity
                         } else {  }
                     }
                 });
+        //베타 DB 리스너
+        commentColRef_FS
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            mchatData.clear();
+                            int taskSize = task.getResult().size();
+                            int count = 0;
+                            for (DocumentSnapshot document : task.getResult()) {
 
-        commentColRef_RT.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mchatData.clear();
-                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
-                    ChatData chatData = dataSnapshot1.getValue(ChatData.class);
-                    mchatData.add(chatData);
-                }
-                adapter.notifyDataSetChanged();
-                recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount()-1);
-            }
+                                String comment = document.getData().get("comment").toString();
+                                String nickname = document.getData().get("nickname").toString();
+                                String userId = document.getData().get("userId").toString();
+                                long timestamp = (long) document.getData().get("timestamp");
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                                mchatData.add(new ChatData(userId, nickname, comment, timestamp));
+                                count++;
+                            }
 
-            }
-        });
+                            // 데이터 추가가 완료되었으면 notifyDataSetChanged() 메서드를 호출해 데이터 변경 체크를 실행합니다.
+                            adapter.notifyDataSetChanged();
+                            recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount()-1);
+                        }
+                    }
+
+                });
+
+        // 기존 DB 리스너
+//        commentColRef_RT.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                mchatData.clear();
+//                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
+//                    ChatData chatData = dataSnapshot1.getValue(ChatData.class);
+//                    mchatData.add(chatData);
+//                }
+//                adapter.notifyDataSetChanged();
+//                recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount()-1);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
     }
 
     @OnClick(R.id.ChatSend_Button)
@@ -182,16 +217,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void writeComment(String userId,String nickname,String comment,long timestamp, Map<String, Object> data) {
+        eT_Chat.setText("");
         ChatData chatData = new ChatData(userId,nickname,comment,timestamp);
         // 기존db 쓰기
-        commentColRef_RT.push().setValue(chatData);
+//        commentColRef_RT.push().setValue(chatData);
+
         // 베타db 쓰기
-        commentColRef_RS
+        commentColRef_FS
                 .add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        eT_Chat.setText("");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

@@ -196,7 +196,6 @@ public class LoginActivity extends AppCompatActivity {
 
                         dialog.dismiss();
 
-
                         Toast.makeText(LoginActivity.this, "writeUserInfo failed", Toast.LENGTH_SHORT).show();
 
 
