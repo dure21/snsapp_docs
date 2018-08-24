@@ -33,11 +33,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class LoginActivity extends AppCompatActivity {
+
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 9001;
 
-    private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
+    private FirebaseAuth mAuth;
     private FirebaseUser user;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();

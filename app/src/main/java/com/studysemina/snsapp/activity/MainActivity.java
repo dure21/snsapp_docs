@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity
 
     @BindView(R.id.Rv_Chat)
     RecyclerView recyclerView;
-    private ChatAdapter adapter;
     List<ChatData> mchatData;
 
     @BindView(R.id.eT_Chat)
@@ -82,17 +81,6 @@ public class MainActivity extends AppCompatActivity
 
         setupUI();
 
-//        commentColRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
-//                for(DocumentChange dc : snapshots.getDocumentChanges()){
-//                    if(dc.getType() == DocumentChange.Type.ADDED) {
-////                        dc.getDocument().getData();
-//                    }
-//                }
-
-//            }
-//        });
     }
 
     private void setupUI() {
@@ -120,18 +108,13 @@ public class MainActivity extends AppCompatActivity
         final ChatAdapter adapter = new ChatAdapter(mchatData);
         recyclerView.setAdapter(adapter);
 
-
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
 
         if (user.getDisplayName() != null) {
-
             nav_tv_GoogleNick.setText(user.getDisplayName());
         }
-
-
         if (user.getEmail() != null) {
-
             nav_tv_GoogleEmail.setText(user.getEmail());
         }
 
@@ -148,18 +131,12 @@ public class MainActivity extends AppCompatActivity
                             FirestoreEmail = new String(documentSnapshot.getData().get("email").toString());
 
                             if (FirestoreNick != null) {
-
                                 nav_tv_FirestoreNick.setText(FirestoreNick);
                             }
-
                             if (FirestoreEmail != null) {
-
                                 nav_tv_FirestoreEmail.setText(FirestoreEmail);
                             }
-
-                        } else {
-
-                        }
+                        } else {  }
                     }
                 });
 
@@ -200,8 +177,14 @@ public class MainActivity extends AppCompatActivity
         data.put("userId", mAuth.getUid());
         data.put("timestamp", new Date().getTime());
 
+        writeComment(mAuth.getUid(),mAuth.getCurrentUser().getDisplayName(),eT_Chat.getText().toString(),new Date().getTime(),data);
+
+    }
+
+    private void writeComment(String userId,String nickname,String comment,long timestamp, Map<String, Object> data) {
+        ChatData chatData = new ChatData(userId,nickname,comment,timestamp);
         // 기존db 쓰기
-        writeComment(mAuth.getUid(),mAuth.getCurrentUser().getDisplayName(),eT_Chat.getText().toString(),new Date().getTime());
+        commentColRef_RT.push().setValue(chatData);
         // 베타db 쓰기
         commentColRef_RS
                 .add(data)
@@ -209,24 +192,14 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         eT_Chat.setText("");
-
-
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error adding document", e);
-
                     }
                 });
-
-    }
-
-    private void writeComment(String userId,String nickname,String comment,long timestamp) {
-        ChatData chatData = new ChatData(userId,nickname,comment,timestamp);
-
-        commentColRef_RT.push().setValue(chatData);
 
     }
 
@@ -236,10 +209,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(new Intent(MainActivity.this, CalendarActivity.class));
         finish();
     }
-
-
-
-
 
     @Override
     public void onBackPressed() {
@@ -269,7 +238,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -292,7 +260,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
